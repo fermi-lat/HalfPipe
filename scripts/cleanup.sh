@@ -35,6 +35,12 @@ if [ -f ${taskBase}/config/haltCleanup ] ; then
     exit 0
 fi
 
+# bail out if not configured to run
+if [ -f ${HALFPIPE_OUTPUTBASE}/${HALFPIPE_DOWNLINKID}/haltCleanup ] ; then
+    echo "skipping cleanup for this downlink"
+    exit 0
+fi
+
 # clean up evt/idx files for completed runs
 python ${taskBase}/scripts/RunCleanup.py --nodryrun --lockdir ${HALFPIPE_OUTPUTBASE}/lock
 

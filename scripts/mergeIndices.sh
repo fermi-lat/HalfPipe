@@ -83,6 +83,12 @@ ls $MOOT_ARCHIVE
 
 #ldd ${taskBase}/scripts/AcqSummary.py
 
+# Kuss 2025-12-02: debugging moot db access
+echo "user = $(whoami)"
+echo "HOME = $HOME"
+ls -la $HOME/.my.cnf
+echo "l0key = $l0key"
+
 time python ${taskBase}/scripts/AcqSummary.py -p glastops -d $HALFPIPE_DOWNLINKID -k $l0key \
     -i $HALFPIPE_OUTPUTBASE/$HALFPIPE_DOWNLINKID --load --retire --evttimes -f $HALFPIPE_OUTPUTBASE/force --moot || exit 1
 
@@ -90,6 +96,14 @@ echo "AcqSummary passed"
 
 type pipelineCreateStream
 which pipelineCreateStream
+
+# 20251223 MWK: extra sleep to delay s3df DEV dl processing wrt legacy PROD
+sleep=1500
+#sleep=0
+date
+echo "sleeping $sleep seconds"
+sleep $sleep
+date
 
 # spin off the merging substreams
 #pipelineCreateStream CANNOT WORK:

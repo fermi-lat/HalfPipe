@@ -94,8 +94,27 @@ time grep -h ^EVT *-${HALFPIPE_RUNSTART}-*.idx | \
 time sort -u -b -k 3g,3 -k 8n,8 ${PIPELINE_STREAM}/evt-*-${HALFPIPE_RUNSTART}.tmp > ${PIPELINE_STREAM}/evt-${HALFPIPE_RUNSTART}.idx
 rm -vf ${PIPELINE_STREAM}/evt-*-${HALFPIPE_RUNSTART}.tmp
 
+# kuss 251118: save the .idx files
+cp -p ${PIPELINE_STREAM}/dgm-${HALFPIPE_RUNSTART}.idx ${PIPELINE_STREAM}/dgm-${HALFPIPE_RUNSTART}.idx.saved
+cp -p ${PIPELINE_STREAM}/evt-${HALFPIPE_RUNSTART}.idx ${PIPELINE_STREAM}/evt-${HALFPIPE_RUNSTART}.idx.saved
+
 # run the merging application for each acquisition
 echo "merging indices"
+echo "pwd=$(pwd)"
+echo "taskBase=$taskBase"
+echo "PIPELINE_STREAM=$PIPELINE_STREAM"
+echo "HALFPIPE_RUNSTART=$HALFPIPE_RUNSTART"
+echo "HALFPIPE_DOWNLINKID=$HALFPIPE_DOWNLINKID"
+echo "HALFPIPE_OUTPUTBASE=$HALFPIPE_OUTPUTBASE"
+echo "time python $taskBase/scripts/MergeDatagrams.py \
+    -d ${PIPELINE_STREAM}/dgm-${HALFPIPE_RUNSTART}.idx \
+    -e ${PIPELINE_STREAM}/evt-${HALFPIPE_RUNSTART}.idx \
+    -o ${PIPELINE_STREAM} \
+    -l ${HALFPIPE_DOWNLINKID} \
+    -b ${HALFPIPE_OUTPUTBASE} --merge || exit 1"
+# to keep the idx files.  They vanish downstream
+#[ "${HALFPIPE_DOWNLINKID}" == "251114005" ] && [ "${PIPELINE_STREAM}" == "784789185" ] && exit 0
+
 time python $taskBase/scripts/MergeDatagrams.py \
     -d ${PIPELINE_STREAM}/dgm-${HALFPIPE_RUNSTART}.idx \
     -e ${PIPELINE_STREAM}/evt-${HALFPIPE_RUNSTART}.idx \
@@ -191,3 +210,10 @@ for f in $destdir/r*.evt; do
     touch $tokendir/`basename $f .evt` || exit 1
 done
 
+# 20251224 MWK: extra sleep to delay s3df DEV dl processing wrt legacy PROD
+sleep=600
+#sleep=0
+date
+echo "sleeping $sleep seconds"
+sleep $sleep
+date

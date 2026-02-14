@@ -109,8 +109,16 @@ if [ -f haltL1 ] ; then
     exit 0
 fi
 
+# 20251224 MWK: extra sleep to delay s3df DEV dl processing wrt legacy PROD
+sleep=600
+#sleep=0
+date
+echo "sleeping $sleep seconds"
+sleep $sleep
+date
+
 # make sure enough Java-stuff is on the path
-export PATH=/usr/local/bin:bin:/usr/bin:$PATH
+export PATH=/usr/local/bin:bin:/usr/bin:${PATH}
 #echo "Submitting task: ${HALFPIPE_L1TASK}"
 #submit_file=$HALFPIPE_OUTPUTBASE/$HALFPIPE_DOWNLINKID/createStream_$HALFPIPE_L1TASK.sh
 #echo 'echo Noting to submit!' > $submit_file

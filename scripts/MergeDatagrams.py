@@ -292,13 +292,15 @@ if __name__ == '__main__':
             _log.info( 'generating list of output spans for LCI data' )
             newspans = [ (x.evtseq0, x.evtseq1) for x in seglists.values()[0] ]
         else:
-            if len( seglists.keys() ) != 2:
+            if len( seglists.keys() ) == 1 :
+                _log.warning( 'Found only 1 seglist!')
+            if len( seglists.keys() ) < 1: #!= 2: # <== NICO
                 _log.warning( 'Found apid segments for %s, cannot merge!' % str(seglists.keys()) )
                 return 0
             acqtype = 'LPA'
-            _log.info( 'generating list of output spans for LPA data' )
+            _log.info( '=> generating list of output spans for LPA data from %d EPU' % len(seglists.keys()) )
             iter_a = itertools.chain( seglists.values()[0] )
-            iter_b = itertools.chain( seglists.values()[1] )
+            iter_b = itertools.chain( seglists.values()[-1] ) # NICO: changed from [1] to [-1]
             a = iter_a.next()
             b = iter_b.next()
             bfoundstop = False

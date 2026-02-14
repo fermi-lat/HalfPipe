@@ -230,17 +230,24 @@ class Acquisition( object ):
         @param[in] ofd output file handle for textual summary
         """
         moot_source = 'missing'
+
         # if LPA, get the applicable default setting
         if self.type == 'LPA':
+            # 2025-12-03 kuss debug
+            _log.info('self.type is %s', self.type )
+    
             dtbl = SA.Table( '%s_acqdefaults' % prefix, db.metadata, autoload=True )
             dsel = dtbl.select( dtbl.c.tcompleted < self.dgmutc0,
                               order_by=[ SA.desc( dtbl.c.tcompleted ), ] )
             row = dsel.execute().fetchone()
             if row:
+                _log.info('row found')
                 self.moot_key   = row.moot_key
                 self.moot_alias = row.moot_alias
                 moot_source = 'default'
-
+            else: # 2025-12-03 kuss debug
+                _log.info('no row')
+        
         # get the acquisition-specific setting if available
         atbl = SA.Table( '%s_acquisition' % prefix, db.metadata, autoload=True )
         asel = atbl.select( SA.and_( atbl.c.trequested < self.dgmutc0,
@@ -254,6 +261,12 @@ class Acquisition( object ):
             self.moot_key   = row.moot_key   if row.moot_key   else self.moot_key
             self.moot_alias = row.moot_alias if row.moot_alias else self.moot_alias
             moot_source = 'specific' if row.moot_key else moot_source
+
+        # kuss 2025-12-03: writing extra logging info to debug why s3df dev can't write to the moot db
+        _log.info('self.startedat  = %d', self.startedat)
+        _log.info('moot_source     = %s', moot_source)
+        _log.info('self.moot_alias = %s', self.moot_alias)
+        _log.info('self.moot_key   = 0x%08x', self.moot_key)
 
         # write to the summary file
         _log.info( 'Acquisition::map_moot: mapped r%010d to %s MOOT info %s(0x%08x)' % \

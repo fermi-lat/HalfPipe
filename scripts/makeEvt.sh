@@ -60,6 +60,18 @@ fi
 #/sdf/group/fermi/a/isoc/flightOps/rhel5_gcc41/ISOC_T EST/lib/FLIGHTOPS_T EST/bin/getLSEChunk.exe
 
 set -o pipefail
-strace=strace
+strace=
+#strace=strace
 ${strace} getLSEChunk.exe -r ${HP_RETDEFCHUNKFILE} -o ${HP_OUTPUTDIR} ${overrideLATC} 2>&1 | \
     ${taskBase}/scripts/logChunkExceptions.py ${HALFPIPE_DOWNLINKID} ${HALFPIPE_CHUNKID}
+
+status=$?
+[ $status -ne 0 ] && exit $status
+
+# 20251223 MWK: extra sleep to delay s3df DEV dl processing wrt legacy PROD
+sleep=1500
+#sleep=0
+date
+echo "sleeping $sleep seconds"
+sleep $sleep
+date
